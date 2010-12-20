@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">
+        SMS2Mail
+    </string>
+    <string name="string_hello1">
+        SMS2Email:
+        Diese Anwendung sendet jede empfangeme SMS
+        an eine einstellbare Email Adresse.
+        Momentan folgende Adresse eingestellt:
+    </string>
+    <string name="string_hello2">
+        Diese Adresse kann in den 
+        Einstellungen geändert werden. Drücken Sie
+        hierzu die Menü-Taste.
+    </string>
+    <string name="string_config">
+        Einstellungen
+    </string>
+    <string name="string_email_address">
+        Email Adresse
+    </string>
+</resources>

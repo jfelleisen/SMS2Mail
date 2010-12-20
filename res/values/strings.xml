@@ -7,7 +7,7 @@
         SMS2Email:
         Diese Anwendung sendet jede empfangeme SMS
         an eine einstellbare Email Adresse.
-        Momentan folgende Adresse eingestellt:
+        Momentan ist folgende Adresse eingestellt:
     </string>
     <string name="string_hello2">
         Diese Adresse kann in den 

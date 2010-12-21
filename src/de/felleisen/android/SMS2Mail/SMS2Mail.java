@@ -1,13 +1,14 @@
 package de.felleisen.android.SMS2Mail;
 
-import java.io.File;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -43,6 +44,8 @@ public class SMS2Mail extends Activity implements OnClickListener
     	{
     		case R.id.id_menu_config:
     			setContentView(R.layout.layout_config);
+    			TextView emailAddress = (TextView)findViewById(R.id.id_config_email_address);
+    			emailAddress.setText(getEmailAddress());
     	        try
     	        {
     	        	Button btnConfigOk = (Button)findViewById(R.id.id_config_ok);
@@ -63,58 +66,59 @@ public class SMS2Mail extends Activity implements OnClickListener
     
     public void onClick (View v)
     {
+    	TextView emailAddress;
+    	
+    	if (findViewById(R.id.id_config_ok) == v)
+    	{
+        	emailAddress = (TextView)findViewById(R.id.id_config_email_address);
+        	setEmailAddress(emailAddress.getText().toString());
+    	}
+    	
         setContentView(R.layout.layout_main);
+        emailAddress = (TextView)findViewById(R.id.id_email_address_main);
+        emailAddress.setText(getEmailAddress());
+    }
+    
+    private void showException (Exception e)
+    {
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    	builder.setMessage("Exception:" + e.toString());
+    	builder.setPositiveButton("OK", null);
+    	builder.create().show();
+    }
+    
+    private static final String EMAIL_ADDRESS_DFLT = "no address specified";
+    private static final String EMAIL_ADDRESS_CFG = "email_address.cfg";
+    
+    private void setEmailAddress(String emailAddress)
+    {
+    	try
+    	{
+    		FileOutputStream fos = openFileOutput (EMAIL_ADDRESS_CFG, Context.MODE_PRIVATE);
+    		DataOutputStream dos = new DataOutputStream(fos);
+    		dos.write((emailAddress + "\n").getBytes());
+			fos.close();
+    	}
+    	catch (Exception e)
+    	{
+    		showException(e);
+    	}
     }
     
     private String getEmailAddress()
     {
-    	String emailAddress = "juergen@felleisen.de";
-    	Toast toast;
+    	String emailAddress = new String (EMAIL_ADDRESS_DFLT);
     	
-    	if (Environment.MEDIA_MOUNTED.equalsIgnoreCase(Environment.getExternalStorageState()))
+    	try
     	{
-    		File file = new File(Environment.getExternalStorageDirectory(), "/Android/data/de.felleisen.android.SMS2Mail/files/EmailAddress.cfg");
-    		if (file.exists())
-    		{
-        		toast = Toast.makeText(getApplicationContext(), "read config file", Toast.LENGTH_LONG);
-        		toast.show();
-    			try
-    			{
-    				byte[] buffer = {};
-    				FileInputStream fis = openFileInput(file.toString());
-    				fis.read(buffer);
-    				emailAddress = buffer.toString();
-    			}
-    			catch (Exception e)
-    			{
-    	    		toast = Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG);
-    	    		toast.show();
-    			}
-    		}
-    		else
-    		{
-        		toast = Toast.makeText(getApplicationContext(), file.toString(), Toast.LENGTH_LONG);
-        		toast.show();
-    			try
-    			{
-    				File dir = new File(Environment.getExternalStorageDirectory(), "/Android/data/de.felleisen.android.SMS2Mail/files/");
-    				dir.mkdirs();
-    				file.createNewFile();
-    				FileOutputStream fos = openFileOutput(file.toString(), Context.MODE_PRIVATE);
-    				fos.write(emailAddress.getBytes());
-    				fos.close();
-    			}
-    			catch (Exception e)
-    			{
-    	    		toast = Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG);
-    	    		toast.show();
-    			}
-    		}
+			FileInputStream fis = openFileInput(EMAIL_ADDRESS_CFG);
+			DataInputStream dis = new DataInputStream(fis);
+			emailAddress = dis.readLine();
+			fis.close();
     	}
-    	else
+    	catch (Exception e)
     	{
-    		toast = Toast.makeText(getApplicationContext(), "Cannot Read/Write to external storage!", Toast.LENGTH_LONG);
-    		toast.show();
+    		setEmailAddress(emailAddress);
     	}
     	
     	return emailAddress;
